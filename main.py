@@ -4,15 +4,18 @@ import numpy as np
 import time
 from ultralytics import YOLO
 import os
+import ai
 
 model = YOLO("runs/detect/train/weights/best.pt")
 
+wait_time = 3
 ws = 600
 nums = {}
 for filename in os.listdir("numbers"):
     path = os.path.join("numbers", filename)
     num = cv2.imread(path)
     num = cv2.resize(num, (ws // 4, ws // 4))
+    num = cv2.cvtColor(num, cv2.COLOR_BGR2HSV)
     nums[int(filename.split(".")[0])] = num
 
 ii = 0
@@ -43,6 +46,7 @@ while True:
         for i in range(4):
             for j in range(4):
                 g = img[o*i:o*i+o, o*j:o*j+o, :]
+                g = cv2.cvtColor(g, cv2.COLOR_BGR2HSV)
 
                 p, e = 0, o * o * 3 * 255
                 for k, num in nums.items():
@@ -70,14 +74,16 @@ while True:
                     2.5, (0, 0, 255), 4, cv2.LINE_AA
                 )
         print(time.time() - s_time)
-        if time.time() - s_time > 0.01:
+        if time.time() - s_time > wait_time:
             # cv2.imwrite("Game2028_dataset/data/img_%d.jpg" % ii, image)
             # ii += 1
             # pyautogui.click((t[0] + t[2]) // 2 * 5, (t[1] + t[3]) // 2 * 5)
             x, y = pyautogui.position()
             if t[2] > x // 5 > t[0] and t[3] > y // 5 > t[1]:
-                c = ["left", "down", "up", "right"]
-                pyautogui.keyDown(np.random.choice(c))
+                # c = ["left", "down", "up", "right"]
+                # pyautogui.keyDown(np.random.choice(c))
+                res = ai.play(board)
+                pyautogui.keyDown(res)
                 s_time = time.time()
     # print(board)
 
