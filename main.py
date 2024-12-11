@@ -9,7 +9,7 @@ import ai
 # https://elgoog.im/2048/
 model = YOLO("runs/detect/train/weights/best.pt")
 
-wait_time = 0.1
+wait_time = 1.0
 ws = 600
 nums = {}
 for filename in os.listdir("numbers"):
