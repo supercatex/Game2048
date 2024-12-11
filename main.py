@@ -6,9 +6,10 @@ from ultralytics import YOLO
 import os
 import ai
 
+# https://elgoog.im/2048/
 model = YOLO("runs/detect/train/weights/best.pt")
 
-wait_time = 3
+wait_time = 0.1
 ws = 600
 nums = {}
 for filename in os.listdir("numbers"):
@@ -27,7 +28,7 @@ while True:
     h, w, c = image.shape
     image = cv2.resize(image, (w // 5, h // 5))
 
-    boxes = model(image)[0].boxes
+    boxes = model(image, verbose=False)[0].boxes
     t = None
     for conf, cls, xyxy in zip(boxes.conf, boxes.cls, boxes.xyxy):
         if conf < 0.8: continue
@@ -73,7 +74,7 @@ while True:
                     cv2.FONT_HERSHEY_PLAIN,
                     2.5, (0, 0, 255), 4, cv2.LINE_AA
                 )
-        print(time.time() - s_time)
+        # print(time.time() - s_time)
         if time.time() - s_time > wait_time:
             # cv2.imwrite("Game2028_dataset/data/img_%d.jpg" % ii, image)
             # ii += 1
@@ -83,6 +84,7 @@ while True:
                 # c = ["left", "down", "up", "right"]
                 # pyautogui.keyDown(np.random.choice(c))
                 res = ai.play(board)
+                print("move:", res)
                 pyautogui.keyDown(res)
                 s_time = time.time()
     # print(board)
