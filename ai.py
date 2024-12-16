@@ -88,6 +88,61 @@ def move_down(board):
                     b[i][j] = 0
     return b
 
+def add_random(board, t=(2, 4)):
+    b = board.copy()
+    a = np.argwhere(b == 0)
+    c = np.random.randint(len(a))
+    b[a[c][0]][a[c][1]] = np.random.choice(t)
+    return b
+
+def board_score(board):
+    # k = np.max(board)
+    return np.sum(board ** 2) #+ k ** len(np.argwhere(board == 0))
+
+def random_walk(board, move=1):
+    c = ["left", "down", "up", "right"]
+    found = ""
+    while len(found) == 0 and len(c) > 0:
+        x = np.random.choice(c)
+        if np.array_equal(eval("move_" + x + "(board)"), board):
+            c.remove(x)
+        else:
+            found = x
+    if len(found) == 0: return board_score(board) * pow(0.95, move), board, move
+    b = eval("move_" + found + "(board)")
+    b = add_random(b)
+    s, bb, m = random_walk(b, move + 1)
+    return board_score(board) + s * 0.95, bb, m
+
+def ai_MCTS(board, t=300):
+    c = ["left", "down", "up", "right"]
+    d = np.array([0, 0, 0, 0])
+    for i in range(4):
+        b = eval("move_" + c[i] + "(board)")
+        if np.array_equal(b, board): continue
+        max_k, cnt_k, max_m = 0, 0, 0
+        n = 0
+        while n < t:
+            bb = add_random(b, t=[n % 2 * 2 + 2])
+            s, bb, move = random_walk(bb)
+            if np.max(bb) > max_k:
+                max_k = np.max(bb)
+                cnt_k = 1
+            elif np.max(bb) == max_k:
+                cnt_k += 1
+            max_m = max(max_m, move)
+            n = n + 1
+            d[i] += s * 0.001
+        d[i] /= n
+        print(c[i] + ":", max_k, "*", cnt_k, "(%d)" % max_m, end=", ")
+    print()
+    # e = d
+    # if np.sum(d) > 0: e = e / np.sum(d)
+    # print(e)
+    # idx = np.random.choice(range(len(c)), p=e)
+    # return c[idx]
+    return c[np.argmax(d)]
+
 def ai_random(board):
     c = ["left", "down", "up", "right"]
     return np.random.choice(c)
@@ -103,4 +158,7 @@ def ai_greedy(board):
         return "right"
 
 def play(board):
-    return ai_greedy(board)
+    # if np.max(board) < 256:
+    #     return ai_greedy(board)
+    # return ai_MCTS(board)
+    return ai_random(board)

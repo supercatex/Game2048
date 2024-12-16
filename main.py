@@ -8,8 +8,9 @@ import ai
 
 # https://elgoog.im/2048/
 model = YOLO("runs/detect/train/weights/best.pt")
+model.to("cuda")
 
-wait_time = 1.0
+wait_time = 0.01
 ws = 600
 nums = {}
 for filename in os.listdir("numbers"):
